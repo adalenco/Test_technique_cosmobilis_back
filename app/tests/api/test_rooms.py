@@ -29,3 +29,27 @@ def test_get_rooms(client, rooms, mocker):
             "created_at": mocker.ANY
         }
     ]
+
+
+def test_add_room_with_invalid_name(client, rooms, mocker):
+    response = client.post("/rooms", json={"name": 1})
+
+    assert response.status_code == 422
+    assert response.json == {"errors": {
+        "name": [
+            "Not a valid string."
+        ]
+    }}
+
+
+def test_add_room(client, rooms, mocker):
+    response = client.post("/rooms", json={"name": "test"})
+
+    assert response.status_code == 200
+    assert response.json == {"id": mocker.ANY, "name": "test", "created_at": mocker.ANY}
+
+
+def test_delete_room(client, rooms):
+    response = client.delete("/rooms?id=00000000-0000-0000-0000-000000000001")
+
+    assert response.status_code == 204

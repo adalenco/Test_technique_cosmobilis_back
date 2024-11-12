@@ -1,4 +1,4 @@
-from marshmallow import fields
+from marshmallow import fields, validate
 
 from glados import ma
 from glados.models import Room
@@ -23,3 +23,11 @@ class RoomSerializer(ma.Schema):
 
 class RoomResponseSerializer(RoomSerializer):
     pass
+
+
+class RoomPostSerializer(ma.Schema):
+    name = fields.String(required=True, validate=validate.Length(min=1))
+
+
+class RoomDeleteSerializer(ma.Schema):
+    id = fields.String(required=True, validate=validate.Length(min=1))

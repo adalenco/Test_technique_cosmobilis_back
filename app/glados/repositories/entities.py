@@ -29,12 +29,10 @@ def update_entity(entity_id, update_data):
     except exc.SQLAlchemyError:
         return None
     if not entity:
-        return None  # Ou lever une exception si l'entité n'existe pas
+        return None
 
-    # Appliquer les mises à jour sur les champs spécifiques
     for key, value in update_data.items():
         setattr(entity, key, value)
 
-    # Sauvegarder les modifications dans la base de données
     db.session.commit()
     return entity
