@@ -193,7 +193,7 @@ def test_patch_entities_by_id_with_unknown_id(client, entities):
 
     assert response.status_code == 404
     assert response.json == {
-        "message": "Entity not found"
+        "error": "Entity not found"
     }
 
 
@@ -214,3 +214,71 @@ def test_patch_entities_by_id(client, entities, mocker):
         },
         "created_at": mocker.ANY
     }
+
+
+def test_post_entity_with_room_id(client, entities, mocker):
+    response = client.post("/entities", json={"name": "Test", "value": "0", "type": "light", "status": "on", "room_id": "00000000-0000-0000-0000-000000000001"})
+
+    assert response.status_code == 200
+    assert response.json == {
+        "id": mocker.ANY,
+        "name": "Test",
+        "type": "light",
+        "status": "on",
+        "value": "0",
+        "room": {
+            "id": "00000000-0000-0000-0000-000000000001",
+            "name": "Kitchen",
+            "created_at": mocker.ANY
+        },
+        "created_at": mocker.ANY
+    }
+
+
+def test_post_entity_without_room_id(client, entities, mocker):
+    response = client.post("/entities", json={"name": "Test", "value": "0", "type": "light", "status": "on"})
+
+    assert response.status_code == 200
+    assert response.json == {
+        "id": mocker.ANY,
+        "name": "Test",
+        "type": "light",
+        "status": "on",
+        "value": "0",
+        "room": None,
+        "created_at": mocker.ANY
+    }
+
+
+def test_post_entity_with_invalid_room_id(client, entities):
+    response = client.post("/entities", json={"name": "Test", "value": "0", "type": "light", "status": "on", "room_id": "1"})
+
+    assert response.status_code == 500
+    assert response.json == {"error": "Database error"}
+
+
+def test_post_entity_with_inexisting_room_id(client, entities):
+    response = client.post("/entities", json={"name": "Test", "value": "0", "type": "light", "status": "on", "room_id": "00000000-0000-0000-0000-000000000008"})
+
+    assert response.status_code == 404
+    assert response.json == {"error": "No room with this id"}
+
+
+def test_post_entity_with_existing_name(client, entities):
+    response = client.post("/entities", json={"name": "Ceiling Light", "value": "0", "type": "light", "status": "on"})
+
+    assert response.status_code == 400
+    assert response.json == {"error": "Name already exists"}
+
+
+def test_delete_entity_with_inexisting_id(client, entities):
+    response = client.delete("/entities?id=00000000-0000-0000-0000-000000000008")
+
+    assert response.status_code == 404
+    assert response.json == {"error": "Entity not found"}
+
+
+def test_delete_entity(client, entities):
+    response = client.delete("/entities?id=00000000-0000-0000-0000-000000000001")
+
+    assert response.status_code == 204

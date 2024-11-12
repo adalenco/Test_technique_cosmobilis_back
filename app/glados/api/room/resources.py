@@ -18,6 +18,11 @@ class RoomsAPI(Resource):
 
         room = post_room(data)
 
+        if room == "error sql":
+            return {"error": "Database error"}, 500
+        elif room == "error name":
+            return {"error": "Name already exists"}, 400
+
         serializer = RoomResponseSerializer(many=False)
         return serializer.dump(room), 200
 
@@ -27,5 +32,5 @@ class RoomsAPI(Resource):
         result = delete_room(data)
 
         if result is False:
-            return {"message": "Entity not found"}, 404
+            return {"error": "Room not found"}, 404
         return {}, 204

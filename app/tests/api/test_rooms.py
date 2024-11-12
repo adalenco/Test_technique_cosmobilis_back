@@ -49,6 +49,20 @@ def test_add_room(client, rooms, mocker):
     assert response.json == {"id": mocker.ANY, "name": "test", "created_at": mocker.ANY}
 
 
+def test_add_room_with_existing_name(client, rooms):
+    response = client.post("/rooms", json={"name": "Kitchen"})
+
+    assert response.status_code == 400
+    assert response.json == {"error": "Name already exists"}
+
+
+def test_delete_room_with_inexisting_id(client, rooms):
+    response = client.delete("/rooms?id=00000000-0000-0000-0000-000000000009")
+
+    assert response.status_code == 404
+    assert response.json == {"error": "Room not found"}
+
+
 def test_delete_room(client, rooms):
     response = client.delete("/rooms?id=00000000-0000-0000-0000-000000000001")
 

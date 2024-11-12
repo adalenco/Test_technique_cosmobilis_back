@@ -10,7 +10,15 @@ def get_rooms():
 
 
 def post_room(data):
+    try:
+        entity = Room.query.filter_by(name=data["name"]).first()
+    except exc.SQLAlchemyError:
+        return "error sql"
+    if entity:
+        return "error name"
+
     new_room = Room(name=data["name"])
+
     db.session.add(new_room)
     db.session.commit()
     return new_room
